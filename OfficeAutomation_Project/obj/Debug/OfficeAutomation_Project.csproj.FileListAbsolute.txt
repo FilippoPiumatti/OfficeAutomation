@@ -1,0 +1,9 @@
+C:\Users\f.piumatti.1365\source\repos\OfficeAutomation_Solution\OfficeAutomation_Project\bin\Debug\OfficeAutomation_Project.exe.config
+C:\Users\f.piumatti.1365\source\repos\OfficeAutomation_Solution\OfficeAutomation_Project\bin\Debug\OfficeAutomation_Project.exe
+C:\Users\f.piumatti.1365\source\repos\OfficeAutomation_Solution\OfficeAutomation_Project\bin\Debug\OfficeAutomation_Project.pdb
+C:\Users\f.piumatti.1365\source\repos\OfficeAutomation_Solution\OfficeAutomation_Project\obj\Debug\OfficeAutomation_Project.csprojAssemblyReference.cache
+C:\Users\f.piumatti.1365\source\repos\OfficeAutomation_Solution\OfficeAutomation_Project\obj\Debug\OfficeAutomation_Project.Form1.resources
+C:\Users\f.piumatti.1365\source\repos\OfficeAutomation_Solution\OfficeAutomation_Project\obj\Debug\OfficeAutomation_Project.Properties.Resources.resources
+C:\Users\f.piumatti.1365\source\repos\OfficeAutomation_Solution\OfficeAutomation_Project\obj\Debug\OfficeAutomation_Project.csproj.GenerateResource.cache
+C:\Users\f.piumatti.1365\source\repos\OfficeAutomation_Solution\OfficeAutomation_Project\obj\Debug\OfficeAutomation_Project.exe
+C:\Users\f.piumatti.1365\source\repos\OfficeAutomation_Solution\OfficeAutomation_Project\obj\Debug\OfficeAutomation_Project.pdb
