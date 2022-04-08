@@ -13,6 +13,7 @@ using OfficeAutomation_Project.Controller;
 
 namespace OfficeAutomation_Project
 {
+    #region Initialize
     public partial class Form1 : Form
     {
         Microsoft.Office.Interop.Word.Application MyWord; // DICHIARAZIONE PER POI ISTANZIARE WORD
@@ -85,7 +86,8 @@ namespace OfficeAutomation_Project
             btnInserisciTabella.Enabled = false;
             btnInserisciTesto.Enabled = false;
         }
-
+        #endregion
+        #region Events
         private void btnCrea_Click(object sender, EventArgs e)
         {
             // CREO ISTANZA DELL APPLICAZIONE WORD
@@ -113,7 +115,6 @@ namespace OfficeAutomation_Project
             }
             
         }
-
         private void txtTesto_Leave(object sender, EventArgs e)
         {
             btnInserisciTesto.Enabled = true;
@@ -124,7 +125,6 @@ namespace OfficeAutomation_Project
                 btnInserisciTesto.Enabled = false;
             }
         }
-
         private void btnInserisciTesto_Click(object sender, EventArgs e)
         {
             if (txtTesto.ForeColor == Color.Silver || txtTesto.Text.Trim() == "Inserire il testo da scrivere sul file Word...")
@@ -137,7 +137,7 @@ namespace OfficeAutomation_Project
 
                 ImpostaRange();
 
-                MyRange.Text = txtTesto + "\n";
+                MyRange.Text = txtTesto.Text + "\n";
                 MyRange.Font.Name = cmbFont.Text;
                 MyRange.Font.Size = Convert.ToInt32(cmbSize.Text);
 
@@ -185,7 +185,6 @@ namespace OfficeAutomation_Project
         }
 
         //GESTIAMO LA FINESTRA DEI FONT ATTRAVERSO LA DIALOG RESULT
-
         private void btnFontDialog_Click(object sender, EventArgs e)
         {
             DialogResult DlgFont = fontDialog1.ShowDialog();
@@ -211,5 +210,183 @@ namespace OfficeAutomation_Project
                 MessageBox.Show("Azione Annullata!" , "Attenzione!", MessageBoxButtons.OK,MessageBoxIcon.Warning);
             }
         }
+        private void btnSalva_Click(object sender, EventArgs e)
+        {
+            MyDoc.SaveAs2(System.Windows.Forms.Application.StartupPath + @"\prova.docx");// salvo il doc in bin/debug
+            MyDoc.Close();//chiudo il doc
+            MyWord.Quit();//killo le istanze di word
+        }
+
+        // GESTIAMO L' INSERIMENTO DI UNA TABELLA WORD
+        private void btnInserisciTabella_Click(object sender, EventArgs e)
+        {
+            int r, c, i, j;
+            Table MyTable;
+
+            r = Convert.ToInt32(cmbRighe.Text);
+            c = Convert.ToInt32(cmbColonne.Text);
+
+            ImpostaRange(); // aggiunge in coda al documento
+
+            MyTable = MyDoc.Tables.Add(MyRange, r, c);
+            MyTable.Borders.Enable = 1; //abilitato
+
+            for  (i = 1; i <= r; i++) // riempo la tabella
+            {
+                for (j = 1; j <= c; j++)
+                {
+                    MyTable.Cell(i, j).Range.Text = "R" + i.ToString() + "-C" + j.ToString();//non centra con myrange
+                    MyTable.Cell(i, j).Width = 100;
+                    MyTable.Cell(i, j).Height = 100;
+                    MyTable.Cell(i, j).Range.ParagraphFormat.SpaceAfter = 30; // come il padding su css
+                    MyTable.Cell(i, j).Range.ParagraphFormat.SpaceBefore = 30; //stessa cosa
+
+                    if ((i + j) % 2 == 0) //se è pari
+                    {
+                        MyTable.Cell(i, j).Range.Shading.BackgroundPatternColorIndex = WdColorIndex.wdYellow;
+                        MyTable.Cell(i, j).Range.Font.ColorIndex = WdColorIndex.wdBlue;
+                    }
+                    else
+                    {
+                        MyTable.Cell(i, j).Range.Shading.BackgroundPatternColorIndex = WdColorIndex.wdBrightGreen; //back color del doc
+                        MyTable.Cell(i, j).Range.Font.ColorIndex = WdColorIndex.wdRed; // fore color del doc
+                    }
+
+                    MyTable.Cell(i, j).Range.Paragraphs.Alignment = WdParagraphAlignment.wdAlignParagraphCenter; // allinneameoto orizziontale
+                    MyTable.Cell(i, j).VerticalAlignment = WdCellVerticalAlignment.wdCellAlignVerticalCenter;// alinemaneto verticale
+                    MyTable.Cell(i, j).Range.Bold = 1; //grassetto abilitato
+                }
+            }
+            ImpostaRange();
+            MyRange.Text = "\n";
+        }
+
+        // GESTIAMO TUTTI GLI EVENTI DI UN CLASSICO EDITOR WORD ATTRRAVERSO DEI BOTTONO (Es: CERCA E SOSTITUISCI)
+        private void btnSelezionaTesto_Click(object sender, EventArgs e)
+        {
+            object Start, end;
+
+            Start = (object)(Interaction.InputBox("Inserisci l' indice Iniziale: "));
+            end = (object)(Interaction.InputBox("Inserisci l' indice Finale: "));
+
+            try
+            {
+                MyRange = MyDoc.Range(ref Start, ref end);
+                MyRange.Select();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Selezione non valida: " + ex.Message," Attenzione " , MessageBoxButtons.OK,MessageBoxIcon.Warning);
+            }
+
+        }
+        private void btnVediSelezione_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Testo Selezionato : " + MyWord.Selection.Text + " - indice inizio: " + MyWord.Selection.Start.ToString() + " indice fine: " + MyWord.Selection.End.ToString());
+        }
+        private void btnSearchAndFind_Click(object sender, EventArgs e)
+        {
+            object Start, End;
+            object TextToFind = Interaction.InputBox("Inserisci il Testo da ricercare");
+
+            MyWord.Selection.Find.ClearFormatting();
+
+            if (MyWord.Selection.Find.Execute(ref TextToFind))
+            {
+                Start = MyWord.Selection.Start;
+                End = MyWord.Selection.End;
+
+                MyRange = MyDoc.Range(ref Start, ref End);
+                MyRange.Text = Interaction.InputBox("Inserisci il nuovo Testo: ");
+
+            }
+            else
+            {
+                MessageBox.Show("Testo non Trovato: ", "Attenzione", MessageBoxButtons.OK, MessageBoxIcon.Warning); ;
+            }
+        }
+        private void btnSubAll_Click(object sender, EventArgs e)
+        {
+            object Start, End;
+            object MissingType = Type.Missing; //omissione di parametro
+            object TextToFind = Interaction.InputBox("Inserisci il Testo da ricercare");
+            string NewText = Interaction.InputBox("Inserisci il Nuvo testo da Aggiungere: ");
+            int init;
+
+            MyWord.Selection.ClearFormatting();
+
+            while (MyWord.Selection.Find.Execute(ref TextToFind,ref MissingType,true))//il true cerca per parola
+            {
+                Start = MyWord.Selection.Start;
+                End = MyWord.Selection.End;
+
+                MyRange = MyDoc.Range(ref Start, ref End);
+                MyRange.Text = NewText;
+
+                init = Convert.ToInt32(Start) + NewText.Length + 1; //sposto il cursore a capo di uno cosi a evitare loop parola uguale
+                Start = (object)init;
+                End = MyDoc.Content.End;
+
+                MyRange = MyDoc.Range(ref Start, ref End);
+                MyRange.Select();
+            }
+
+            MyRange = MyDoc.Range(0,0);//mi sposto all inizio
+            MyRange.Select();
+        }
+        private void btnSubAll2_Click(object sender, EventArgs e)
+        {
+            object Start, End;
+            object MissingType = Type.Missing; //omissione di parametro
+            object TextToFind = Interaction.InputBox("Inserisci il Testo da ricercare");
+            object NewText = Interaction.InputBox("Inserisci il Nuvo testo da Aggiungere: ");
+
+            MyWord.Selection.ClearFormatting();
+            MyWord.Selection.Find.Execute(
+
+                //PARAMETRI
+
+                ref TextToFind, MissingType,
+                true, MissingType, MissingType,
+                MissingType, MissingType,
+                MissingType, MissingType,
+                ref NewText, WdReplace.wdReplaceAll
+                );
+        }
+        private void BtnCreatePdf_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (openFileDialog1.ShowDialog() == DialogResult.OK) // se clicckiamo ok:
+                {
+                    Microsoft.Office.Interop.Word.Application WordApp = new Microsoft.Office.Interop.Word.Application();
+                    Document WordDoc = new Document();
+                   
+                    WordApp.Visible = false;
+                    WordDoc = WordApp.Documents.Open(openFileDialog1.FileName); //uso la dialog per sfogliare i file
+
+                    if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                    {
+                        WordDoc.ExportAsFixedFormat(saveFileDialog1.FileName, WdExportFormat.wdExportFormatPDF, true);
+                        //esportiamo in pdf, il true mi apre direttamente il pdf
+                    }
+
+                    WordDoc.Close();
+                    WordApp.Quit();
+
+                    MessageBox.Show("Creazione File PDF Terminata con Successo...","Success",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Creazione PDF Fallita : " + ex.Message, "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                throw;
+            }
+        }
+        private void btnStampa_Click(object sender, EventArgs e)
+        {
+            throw new NotImplementedException;
+        }
+        #endregion
     }
 }
