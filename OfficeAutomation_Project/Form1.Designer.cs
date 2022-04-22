@@ -74,6 +74,7 @@
             this.btnSubAll2 = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.printDialog1 = new System.Windows.Forms.PrintDialog();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -412,6 +413,7 @@
             this.btnSubmit.TabIndex = 31;
             this.btnSubmit.Text = "Registrati Ora!!";
             this.btnSubmit.UseVisualStyleBackColor = true;
+            this.btnSubmit.Click += new System.EventHandler(this.btnSubmit_Click);
             // 
             // dateTimePicker1
             // 
@@ -524,6 +526,10 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
+            // printDialog1
+            // 
+            this.printDialog1.UseEXDialog = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -619,6 +625,7 @@
         private System.Windows.Forms.Button btnSubAll2;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
+        private System.Windows.Forms.PrintDialog printDialog1;
     }
 }
 

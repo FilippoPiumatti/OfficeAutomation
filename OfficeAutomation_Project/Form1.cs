@@ -88,6 +88,7 @@ namespace OfficeAutomation_Project
         }
         #endregion
         #region Events
+        //CREO IL DOCUMENTO DA ZERO CON I VARI PARAMETRI
         private void btnCrea_Click(object sender, EventArgs e)
         {
             // CREO ISTANZA DELL APPLICAZIONE WORD
@@ -280,10 +281,12 @@ namespace OfficeAutomation_Project
             }
 
         }
+        //VEDIAO LA SELEZIONE DEI CARATTERI
         private void btnVediSelezione_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Testo Selezionato : " + MyWord.Selection.Text + " - indice inizio: " + MyWord.Selection.Start.ToString() + " indice fine: " + MyWord.Selection.End.ToString());
         }
+        //CERCA E SOSTITUISCI
         private void btnSearchAndFind_Click(object sender, EventArgs e)
         {
             object Start, End;
@@ -305,6 +308,7 @@ namespace OfficeAutomation_Project
                 MessageBox.Show("Testo non Trovato: ", "Attenzione", MessageBoxButtons.OK, MessageBoxIcon.Warning); ;
             }
         }
+        //SOSTITUISCI TUTTO
         private void btnSubAll_Click(object sender, EventArgs e)
         {
             object Start, End;
@@ -334,6 +338,7 @@ namespace OfficeAutomation_Project
             MyRange = MyDoc.Range(0,0);//mi sposto all inizio
             MyRange.Select();
         }
+        //2.0 SOSTITUISCI TUTTO
         private void btnSubAll2_Click(object sender, EventArgs e)
         {
             object Start, End;
@@ -353,6 +358,7 @@ namespace OfficeAutomation_Project
                 ref NewText, WdReplace.wdReplaceAll
                 );
         }
+        //ESPORTAZIONE IN PDF
         private void BtnCreatePdf_Click(object sender, EventArgs e)
         {
             try
@@ -383,10 +389,145 @@ namespace OfficeAutomation_Project
                 throw;
             }
         }
+        //GESTIONE DELLA STAMPA SU VERA STAMPANTE
         private void btnStampa_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException;
+            try
+            {
+                if (openFileDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    Microsoft.Office.Interop.Word.Application WordApp = new Microsoft.Office.Interop.Word.Application();
+                    Document WordDoc = new Document();
+
+                    //N.B LE FINESTRE DI DIALOGO FUNZIONANO TUTTE ALLO STESSO MODO!
+
+                    WordApp.Visible = false;
+                    WordDoc = WordApp.Documents.Open(openFileDialog1.FileName); //passiamo al doc il nome del file che vogliamo aprire
+
+                    if (printDialog1.ShowDialog() == DialogResult.OK) 
+                    {
+                        WordDoc.PrintOut(); //va a stampare sulla stampante correttamente selezionata
+                        MessageBox.Show("Documento Stampato Correttamente","Attenzione",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Operazione Annullata", "Attenzione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    WordDoc.Close();
+                    WordApp.Quit();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Errore: " + ex.Message, "FATAL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
         #endregion
+        // GESTISCO UN FORM DI REGISTRAZIONE ATTRAVERSO I SEGNALIBRI DI WORD
+        private void btnSubmit_Click(object sender, EventArgs e)
+        {
+            Microsoft.Office.Interop.Word.Application WordVerbale = new Microsoft.Office.Interop.Word.Application();
+            Document DocVerbale = new Document();
+            object TemplateName = System.Windows.Forms.Application.StartupPath + @"\reg.docx";
+
+            DocVerbale = WordVerbale.Documents.Open(TemplateName);
+            try
+            {
+                WordVerbale.Visible = true;
+
+                //segnalibro cog
+                if (DocVerbale.Bookmarks.Exists("cog")) // controllo se il segnalibro di nome cog esiste
+                {
+                    object wBookmarks = "cog";//puntiamo il bookmark cog
+
+                    DocVerbale.Bookmarks.get_Item(ref wBookmarks).Range.Text = txtCognome.Text.Trim();// lo passiamo alla getitem per referenza cosi da posizionarci li successivamente
+                }
+                else
+                {
+                    throw new Exception("Eccezione Generata Dalla Mancanza Del Segnalibro Cognome");
+                }
+
+                //segnalibro nome
+                if (DocVerbale.Bookmarks.Exists("nome")) // controllo se il segnalibro di nome cog esiste
+                {
+                    object wBookmarks = "nome";//puntiamo il bookmark cog
+
+                    DocVerbale.Bookmarks.get_Item(ref wBookmarks).Range.Text = txtNome.Text.Trim();// lo passiamo alla getitem per referenza cosi da posizionarci li successivamente
+                }
+                else
+                {
+                    throw new Exception("Eccezione Generata Dalla Mancanza Del Segnalibro Nome");
+                }
+
+                //segnalibro dataN
+                if (DocVerbale.Bookmarks.Exists("dataN")) // controllo se il segnalibro di nome cog esiste
+                {
+                    object wBookmarks = "dataN";//puntiamo il bookmark cog
+
+                    DocVerbale.Bookmarks.get_Item(ref wBookmarks).Range.Text = dateTimePicker1.Value.ToShortDateString();// lo passiamo alla getitem per referenza cosi da posizionarci li successivamente
+                }
+                else
+                {
+                    throw new Exception("Eccezione Generata Dalla Mancanza Del Segnalibro dataN");
+                }
+
+                //segnalibro mail
+                if (DocVerbale.Bookmarks.Exists("mail")) // controllo se il segnalibro di nome cog esiste
+                {
+                    object wBookmarks = "mail";//puntiamo il bookmark cog
+
+                    DocVerbale.Bookmarks.get_Item(ref wBookmarks).Range.Text = txtEmail.Text.Trim();// lo passiamo alla getitem per referenza cosi da posizionarci li successivamente
+                }
+                else
+                {
+                    throw new Exception("Eccezione Generata Dalla Mancanza Del Segnalibro e-mail");
+                }
+
+                //segnalibro pwd
+                if (DocVerbale.Bookmarks.Exists("pwd")) // controllo se il segnalibro di nome cog esiste
+                {
+                    object wBookmarks = "pwd";//puntiamo il bookmark cog
+
+                    DocVerbale.Bookmarks.get_Item(ref wBookmarks).Range.Text = txtPassword.Text.Trim();// lo passiamo alla getitem per referenza cosi da posizionarci li successivamente
+                }
+                else
+                {
+                    throw new Exception("Eccezione Generata Dalla Mancanza Del Segnalibro pwd");
+                }
+
+                //segnalibro dataOggi
+                if (DocVerbale.Bookmarks.Exists("dataOggi")) // controllo se il segnalibro di nome cog esiste
+                {
+                    object wBookmarks = "dataOggi";//puntiamo il bookmark cog
+
+                    DocVerbale.Bookmarks.get_Item(ref wBookmarks).Range.Text = DateTime.Today.ToShortDateString();// lo passiamo alla getitem per referenza cosi da posizionarci li successivamente
+                }
+                else
+                {
+                    throw new Exception("Eccezione Generata Dalla Mancanza Del Segnalibro dataOggi");
+                }
+
+                //segnalibro dataCitta
+                if (DocVerbale.Bookmarks.Exists("dataCitta")) // controllo se il segnalibro di nome cog esiste
+                {
+                    object wBookmarks = "dataCitta";//puntiamo il bookmark cog
+
+                    DocVerbale.Bookmarks.get_Item(ref wBookmarks).Range.Text = DateTime.Today.ToShortDateString();// lo passiamo alla getitem per referenza cosi da posizionarci li successivamente
+                }
+                else
+                {
+                    throw new Exception("Eccezione Generata Dalla Mancanza Del Segnalibro dataCitta");
+                }
+
+                DocVerbale.SaveAs2(System.Windows.Forms.Application.StartupPath + @"\reg_" + txtCognome.Text.Trim() +  "_" + txtNome.Text.Trim() + ".docx");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message, "FATAL" ,MessageBoxButtons.OK,MessageBoxIcon.Error);
+            }
+
+            /*DocVerbale.Close();
+            WordVerbale.Quit();*/
+        }
     }
 }
